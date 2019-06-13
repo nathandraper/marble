@@ -4,6 +4,7 @@ from Sprites import SpriteSheet
 
 class Map:
     def __init__(self, platform, screen_width, screen_height, drag=1):
+        # TODO set drag property as a property of Ground, not Map
         self.drag = drag
         self.blocks = []
         self.bullets = []

@@ -116,13 +116,16 @@ class Ball:
         return self.rect.collidelist(self.ball_map.get_platform_rects()) < 0
 
     def blocked(self):
+        # TODO loss condition here
         print("collide")
 
     def off_the_grid(self):
+        # TODO loss condition here
         #print("off da grid")
         pass
 
     def shot(self):
+        # TODO loss condition here
         print("shot")
 
     def teleport(self, center):
