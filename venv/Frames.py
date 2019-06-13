@@ -6,6 +6,7 @@ class Map:
     def __init__(self, platform, screen_width, screen_height, drag=1):
         self.drag = drag
         self.blocks = []
+        self.bullets = []
         self.platform = platform
         self.screen_width = screen_width
         self.screen_height = screen_height
@@ -17,17 +18,29 @@ class Map:
         for ground in self.platform:
             ground.draw(surface)
 
+        for bullet in self.bullets:
+            bullet.draw(surface)
+
     def blocks_fall(self):
         for index, block in enumerate(self.blocks):
             block.fall()
-            if block.y_pos >= self.screen_height:
+            if block.is_offscreen(self.screen_width, self.screen_height):
                 self.blocks.pop(index)
+
+    def bullets_shoot(self):
+        for index, bullet in enumerate(self.bullets):
+            bullet.shoot()
+            if bullet.is_offscreen(self.screen_width, self.screen_height):
+                self.bullets.pop(index)
 
     def get_block_rects(self):
         return[block.rect for block in self.blocks]
 
     def get_platform_rects(self):
         return[ground.rect for ground in self.platform]
+
+    def get_bullet_rects(self):
+        return[bullet.rect for bullet in self.bullets]
 
 
 class Window:

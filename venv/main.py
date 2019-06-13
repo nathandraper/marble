@@ -1,10 +1,11 @@
 import pygame
-from math import floor
+import math
 from Frames import Map, Window, Ground
 from Sprites import SpriteSheet
-from Objects import Ball, Block, AbsGameObject
+from Objects import Ball, Block, AbsGameObject, Bullet
 
-
+# TODO clean up this mess
+# TODO create game main menu
 if __name__ == "__main__":
     pygame.init()
 
@@ -15,7 +16,9 @@ if __name__ == "__main__":
 
     test = Ground((400, 400), "platform_texture.png", (2, 5), 5, 5, 5)
 
-    game_map = Map([test], screen_width, screen_height, 3)
+    game_map = Map([test], screen_width, screen_height, 1)
+    test_bullet = Bullet((0,0), "bullet_texture.png", (2, 5), 5, 7*math.pi/4)
+    game_map.bullets.append(test_bullet)
     game_map.blocks.append(Block((459, 10), "skull_block.png", (2, 5),  1, 1, 5))
 
     radius = 10
@@ -41,6 +44,7 @@ if __name__ == "__main__":
         game_map.draw(game_window.surface)
         ball.draw(game_window.surface)
         game_map.blocks_fall()
+        game_map.bullets_shoot()
         pygame.display.update()
 
         if AbsGameObject.flash_counter >= 9:

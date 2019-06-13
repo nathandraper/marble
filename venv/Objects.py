@@ -1,5 +1,5 @@
 import pygame
-from math import floor, hypot, asin, acos, sin, cos, atan, pi, copysign
+import math
 from Sprites import SpriteSheet
 
 
@@ -19,6 +19,12 @@ class AbsGameObject:
         surface.blit(self.sprite_sheet.sheet, (self.x_pos, self.y_pos),
                      self.sprite_sheet.cell_rects[AbsGameObject.flash_counter])
 
+    def is_offscreen(self, screen_width, screen_heignt):
+        return (self.x_pos > screen_width) or (self.x_pos <= 0) or (self.y_pos > screen_heignt) or (self.y_pos <= 0)
+
+    def set_rect(self):
+        self.rect = pygame.Rect(self.x_pos, self.y_pos, self.sprite_sheet.cell_width, self.sprite_sheet.cell_height)
+
 
 class Ball:
     SQRT2 = 2**.5
@@ -37,7 +43,7 @@ class Ball:
         self.set_rect()
 
     def draw(self, surface):
-        pygame.draw.circle(surface, self.color, (floor(self.x_pos), floor(self.y_pos)), self.radius)
+        pygame.draw.circle(surface, self.color, (math.floor(self.x_pos), math.floor(self.y_pos)), self.radius)
 
     def accelerate(self, keys):
         acc = self.acceleration / Ball.SQRT2 if self.is_accelerating_diagonally(keys) else self.acceleration
@@ -49,7 +55,7 @@ class Ball:
         prev_x_vel = self.x_velocity
         prev_y_vel = self.y_velocity
 
-        self.apply_vector(drag,  self.calculate_angle() + pi)
+        self.apply_vector(drag,  self.calculate_angle() + math.pi)
 
         if (self.x_velocity > 0) != (prev_x_vel > 0):
             self.x_velocity = 0
@@ -79,6 +85,7 @@ class Ball:
         elif self.y_pos < self.radius:
             self.y_velocity = 0
             self.y_pos = self.radius
+
         self.set_rect()
 
         if self.is_blocked():
@@ -86,6 +93,9 @@ class Ball:
 
         if self.is_off_the_grid():
             self.off_the_grid()
+
+        if self.is_shot():
+            self.shot()
 
     def is_accelerating(self, keys):
         return any([keys[pygame.K_LEFT], keys[pygame.K_RIGHT], keys[pygame.K_UP], keys[pygame.K_DOWN]])
@@ -99,6 +109,9 @@ class Ball:
     def is_blocked(self):
         return self.rect.collidelist(self.ball_map.get_block_rects()) >= 0
 
+    def is_shot(self):
+        return self.rect.collidelist(self.ball_map.get_bullet_rects()) >= 0
+
     def is_off_the_grid(self):
         return self.rect.collidelist(self.ball_map.get_platform_rects()) < 0
 
@@ -106,7 +119,11 @@ class Ball:
         print("collide")
 
     def off_the_grid(self):
-        print("off da grid")
+        #print("off da grid")
+        pass
+
+    def shot(self):
+        print("shot")
 
     def teleport(self, center):
         self.x_pos = center[0]
@@ -117,19 +134,19 @@ class Ball:
         self.rect = pygame.Rect(self.x_pos, self.y_pos, self.radius*2, self.radius*2)
 
     def calculate_velocity(self):
-        return hypot(self.x_velocity, self.y_velocity)
+        return math.hypot(self.x_velocity, self.y_velocity)
 
     def calculate_angle(self):
-        if self.x_velocity == 0:
-            return copysign(pi/2, self.y_velocity)
-        var = atan((-1 * self.y_velocity)/self.x_velocity)
-        return var
+        try:
+            return math.atan2(self.y_velocity, self.x_velocity)
+        except ZeroDivisionError:
+            return math.copysign(math.pi/2, self.y_velocity)
 
     def apply_vector(self, magnitude, angle):
-        y_component = sin(angle) * magnitude
-        x_component = cos(angle) * magnitude
+        y_component = math.sin(angle) * magnitude
+        x_component = math.cos(angle) * magnitude
 
-        self.y_velocity -= y_component
+        self.y_velocity += y_component
         self.x_velocity += x_component
 
 
@@ -147,11 +164,9 @@ class Block(AbsGameObject):
         self.y_pos += self.velocity
         self.set_rect()
 
-    def set_rect(self):
-        self.rect = pygame.Rect(self.x_pos, self.y_pos, self.sprite_sheet.cell_width, self.sprite_sheet.cell_height)
-
 
 class Boost(AbsGameObject):
+    # TODO finish implementation of boost
     def __init__(self, location, orientation, acceleration = 50):
         self.orientation = orientation
         icon = pygame.transform.scale(pygame.image.load("boost_" + str(orientation) + ".png"), (30, 30))
@@ -167,3 +182,22 @@ class Boost(AbsGameObject):
             raise OrientationError(orientation)
         else:
             self._orientation = orientation
+
+
+class Bullet(AbsGameObject):
+    def __init__(self, location, texture, rows_cols, velocity, angle):
+        super().__init__(texture, rows_cols[0], rows_cols[1], location[0], location[1])
+        self.velocity = velocity
+        self.angle = angle
+
+        self.calculate_components()
+        self.set_rect()
+
+    def calculate_components(self):
+        self.y_velocity = -(self.velocity * math.sin(self.angle))
+        self.x_velocity = self.velocity * math.cos(self.angle)
+
+    def shoot(self):
+        self.x_pos += self.x_velocity
+        self.y_pos += self.y_velocity
+        self.set_rect()
