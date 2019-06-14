@@ -3,18 +3,32 @@ import math
 from Frames import Map, Window, Ground
 from Sprites import SpriteSheet
 from Objects import Ball, Block, AbsGameObject, Bullet
+from UI_Elements import Button, Text
 
-# TODO clean up this mess
-# TODO create game main menu
+
+# TODO implement these functions
+def create_main_menu():
+    pass
+
+def create_game_window():
+    pass
+
+def create_ball():
+    pass
+
+
 if __name__ == "__main__":
     pygame.init()
 
+    # TODO move all this into the above functions
     screen_width = 800
     screen_height = 700
     game_window = Window(screen_width, screen_height)
     pygame.display.set_caption("Magical Moving Ball")
 
     test = Ground((400, 400), "platform_texture.png", (2, 5), 5, 5, 5)
+    test_button = Button("test", (255, 255, 255), (255, 255, 0), (300, 300), 50, 50)
+    test_text = Text("Main Menu", (255, 255, 255), (200, 200), 100)
 
     game_map = Map([test], screen_width, screen_height, 1)
     test_bullet = Bullet((0,0), "bullet_texture.png", (2, 5), 5, 7*math.pi/4)
@@ -33,24 +47,7 @@ if __name__ == "__main__":
 
     run = True
     while run:
+        pass
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-
-        game_window.refresh()
-        key_list = pygame.key.get_pressed()
-        ball.move(key_list)
-        game_map.draw(game_window.surface)
-        ball.draw(game_window.surface)
-        game_map.blocks_fall()
-        game_map.bullets_shoot()
-        pygame.display.update()
-
-        if AbsGameObject.flash_counter >= 9:
-            AbsGameObject.flash_counter = 0
-        else:
-            AbsGameObject.flash_counter += 1
-        clock.tick(30)
 
     pygame.quit()

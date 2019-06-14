@@ -25,6 +25,14 @@ class AbsGameObject:
     def set_rect(self):
         self.rect = pygame.Rect(self.x_pos, self.y_pos, self.sprite_sheet.cell_width, self.sprite_sheet.cell_height)
 
+    @classmethod
+    def update_counter(cls):
+        if AbsGameObject.flash_counter >= 9:
+            AbsGameObject.flash_counter = 0
+        else:
+            AbsGameObject.flash_counter += 1
+
+
 
 class Ball:
     SQRT2 = 2**.5
@@ -88,15 +96,6 @@ class Ball:
 
         self.set_rect()
 
-        if self.is_blocked():
-            self.blocked()
-
-        if self.is_off_the_grid():
-            self.off_the_grid()
-
-        if self.is_shot():
-            self.shot()
-
     def is_accelerating(self, keys):
         return any([keys[pygame.K_LEFT], keys[pygame.K_RIGHT], keys[pygame.K_UP], keys[pygame.K_DOWN]])
 
@@ -114,19 +113,6 @@ class Ball:
 
     def is_off_the_grid(self):
         return self.rect.collidelist(self.ball_map.get_platform_rects()) < 0
-
-    def blocked(self):
-        # TODO loss condition here
-        print("collide")
-
-    def off_the_grid(self):
-        # TODO loss condition here
-        #print("off da grid")
-        pass
-
-    def shot(self):
-        # TODO loss condition here
-        print("shot")
 
     def teleport(self, center):
         self.x_pos = center[0]

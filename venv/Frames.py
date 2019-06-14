@@ -12,6 +12,11 @@ class Map:
         self.screen_width = screen_width
         self.screen_height = screen_height
 
+    def update(self, surface):
+        self.bullets_shoot()
+        self.blocks_fall()
+        self.draw(surface)
+
     def draw(self, surface):
         for block in self.blocks:
             block.draw(surface)
