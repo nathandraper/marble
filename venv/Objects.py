@@ -10,6 +10,7 @@ class AbsGameObject:
         self.sprite_sheet = SpriteSheet(texture, rows, cols)
         self.x_pos = x_pos
         self.y_pos = y_pos
+        self.rect = self.set_rect()
 
     def teleport(self, x_pos, y_pos):
         self.x_pos = x_pos
@@ -23,32 +24,30 @@ class AbsGameObject:
         return (self.x_pos > screen_width) or (self.x_pos <= 0) or (self.y_pos > screen_heignt) or (self.y_pos <= 0)
 
     def set_rect(self):
-        self.rect = pygame.Rect(self.x_pos, self.y_pos, self.sprite_sheet.cell_width, self.sprite_sheet.cell_height)
+        return pygame.Rect(self.x_pos, self.y_pos, self.sprite_sheet.cell_width, self.sprite_sheet.cell_height)
 
     @classmethod
     def update_counter(cls):
-        if AbsGameObject.flash_counter >= 9:
-            AbsGameObject.flash_counter = 0
+        if cls.flash_counter >= 9:
+            cls.flash_counter = 0
         else:
-            AbsGameObject.flash_counter += 1
-
+            cls.flash_counter += 1
 
 
 class Ball:
     SQRT2 = 2**.5
 
-    def __init__(self, ball_map, screen_width, screen_height, color, center, radius=1, acceleration=1):
+    def __init__(self, screen_width, screen_height, color, center, radius=1, acceleration=1):
         self.color = color
         self.x_pos = center[0]
         self.y_pos = center[1]
         self.radius = radius
         self.acceleration = acceleration
-        self.ball_map = ball_map
         self.screen_width = screen_width
         self.screen_height = screen_height
         self.x_velocity = 0
         self.y_velocity = 0
-        self.set_rect()
+        self.rect = self.set_rect()
 
     def draw(self, surface):
         pygame.draw.circle(surface, self.color, (math.floor(self.x_pos), math.floor(self.y_pos)), self.radius)
@@ -58,8 +57,7 @@ class Ball:
         self.x_velocity = self.x_velocity + acc * keys[pygame.K_RIGHT] - acc * keys[pygame.K_LEFT]
         self.y_velocity = self.y_velocity + acc * keys[pygame.K_DOWN] - acc * keys[pygame.K_UP]
 
-    def drag(self):
-        drag = self.ball_map.drag
+    def drag(self, drag):
         prev_x_vel = self.x_velocity
         prev_y_vel = self.y_velocity
 
@@ -71,11 +69,11 @@ class Ball:
         if (self.y_velocity > 0) != (prev_y_vel > 0):
             self.y_velocity = 0
 
-    def move(self, keys):
+    def move(self, keys, drag):
         if self.is_accelerating(keys):
             self.accelerate(keys)
         if self.is_moving():
-            self.drag()
+            self.drag(drag)
 
         self.x_pos += self.x_velocity
         self.y_pos += self.y_velocity
@@ -94,7 +92,7 @@ class Ball:
             self.y_velocity = 0
             self.y_pos = self.radius
 
-        self.set_rect()
+        self.rect = self.set_rect()
 
     def is_accelerating(self, keys):
         return any([keys[pygame.K_LEFT], keys[pygame.K_RIGHT], keys[pygame.K_UP], keys[pygame.K_DOWN]])
@@ -105,22 +103,22 @@ class Ball:
     def is_accelerating_diagonally(self, keys):
         return (keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]) and (keys[pygame.K_UP] or keys[pygame.K_DOWN])
 
-    def is_blocked(self):
-        return self.rect.collidelist(self.ball_map.get_block_rects()) >= 0
+    def is_blocked(self, ball_map):
+        return self.rect.collidelist(ball_map.get_block_rects()) >= 0
 
-    def is_shot(self):
-        return self.rect.collidelist(self.ball_map.get_bullet_rects()) >= 0
+    def is_shot(self, ball_map):
+        return self.rect.collidelist(ball_map.get_bullet_rects()) >= 0
 
-    def is_off_the_grid(self):
-        return self.rect.collidelist(self.ball_map.get_platform_rects()) < 0
+    def is_off_the_grid(self, ball_map):
+        return self.rect.collidelist(ball_map.get_platform_rects()) < 0
 
     def teleport(self, center):
         self.x_pos = center[0]
         self.y_pos = center[1]
-        self.set_rect()
+        self.rect = self.set_rect()
 
     def set_rect(self):
-        self.rect = pygame.Rect(self.x_pos, self.y_pos, self.radius*2, self.radius*2)
+        return pygame.Rect(self.x_pos, self.y_pos, self.radius*2, self.radius*2)
 
     def calculate_velocity(self):
         return math.hypot(self.x_velocity, self.y_velocity)
@@ -146,12 +144,10 @@ class Block(AbsGameObject):
         self.height = height
         self.velocity = velocity
         self.flash_counter = 0
-        self.set_rect()
-
 
     def fall(self):
         self.y_pos += self.velocity
-        self.set_rect()
+        self.rect = self.set_rect()
 
 
 class Boost(AbsGameObject):
@@ -180,7 +176,7 @@ class Bullet(AbsGameObject):
         self.angle = angle
 
         self.calculate_components()
-        self.set_rect()
+        self.rect = self.set_rect()
 
     def calculate_components(self):
         self.y_velocity = -(self.velocity * math.sin(self.angle))
@@ -189,4 +185,4 @@ class Bullet(AbsGameObject):
     def shoot(self):
         self.x_pos += self.x_velocity
         self.y_pos += self.y_velocity
-        self.set_rect()
+        self.rect = self.set_rect()

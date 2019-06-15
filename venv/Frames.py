@@ -3,14 +3,13 @@ from Sprites import SpriteSheet
 
 
 class Map:
-    def __init__(self, platform, screen_width, screen_height, drag=1):
-        # TODO set drag property as a property of Ground, not Map
-        self.drag = drag
+    def __init__(self, platform, screen_width, screen_height, has_platform=False):
         self.blocks = []
         self.bullets = []
         self.platform = platform
         self.screen_width = screen_width
         self.screen_height = screen_height
+        self.has_platform = has_platform
 
     def update(self, surface):
         self.bullets_shoot()
@@ -43,15 +42,23 @@ class Map:
         return[block.rect for block in self.blocks]
 
     def get_platform_rects(self):
-        return[ground.rect for ground in self.platform]
+        try:
+            return[ground.rect for ground in self.platform]
+        except TypeError:
+            return[pygame.Rect(0, 0, self.screen_width, self.screen_height)]
 
     def get_bullet_rects(self):
         return[bullet.rect for bullet in self.bullets]
 
+    def on_what_ground(self, rect):
+        return rect.collidelist(self.get_platform_rects)
+
 
 class Window:
     def __init__(self, width, height):
-        self.surface = pygame.display.set_mode((width, height))
+        self.width = width
+        self.height = height
+        self.surface = pygame.display.set_mode((self.width, self.height))
 
     def refresh(self):
         self.surface.fill((0, 0, 0))

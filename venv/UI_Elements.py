@@ -1,6 +1,32 @@
 import pygame
 
 
+class Menu:
+    def __init__(self, buttons, texts, window):
+        self.buttons = buttons
+        self.texts = texts
+        self.window = window
+
+    def render(self):
+        for button in buttons:
+            button.draw(window.surface)
+
+        self.description.draw(window.surface)
+
+    def run_menu(self):
+        for button in self.buttons:
+            button.draw()
+        for text in self.texts:
+            text.draw()
+
+        run = True
+        while run:
+            if pygame.mouse.get_pressed()[0]:
+                for button in self.buttons:
+                    if button.in_button(pygame.mouse.get_pos()):
+                        return button.action
+
+
 class Button:
     def __init__(self, text, color, text_color, location, width, height, action):
         self.text = text

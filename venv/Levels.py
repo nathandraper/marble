@@ -1,35 +1,9 @@
 from Frames import Map, Ground
 from Objects import Block, Bullet, AbsGameObject, Ball
 from Sprites import SpriteSheet
-from UI_Elements import Button, Text
+from UI_Elements import Button, Text, Menu
 import pygame
 import json
-
-
-class Menu:
-    def __init__(self, buttons, texts, window):
-        self.buttons = buttons
-        self.texts = texts
-        self.window = window
-
-    def render(self):
-        for button in buttons:
-            button.draw(window.surface)
-
-        self.description.draw(window.surface)
-
-    def run_menu(self):
-        for button in self.buttons:
-            button.draw()
-        for text in self.texts:
-            text.draw()
-
-        run = True
-        while run:
-            if pygame.mouse.get_pressed()[0]:
-                for button in self.buttons:
-                    if button.in_button(pygame.mouse.get_pos()):
-                        return button.action
 
 
 class Game:
@@ -39,11 +13,13 @@ class Game:
         self.window = window
 
     def run_levels(self):
-        for level in levels:
-            if level.run_level() == "win":
+        for level in self.levels:
+            result = level.run_level(self.ball)
+
+            if result == "win":
                 self.win()
 
-            if level.run_level() == "lose":
+            if result == "lose":
                 return self.lose()
 
         return self.victory()
@@ -51,17 +27,15 @@ class Game:
     def lose(self):
         color = (0, 255, 255)
         text_color = (255, 255, 255)
-        retry_location = (600, 600)
         main_menu_location = (300, 600)
         width = 100
         height = 50
 
-        retry_button = Button("Retry", color, text_color, retry_location, width, height, "retry")
         main_menu_button = Button("Main Menu", color, text_color, main_menu_location, width, height, "main menu")
         message_font = pygame.font.Font(None, 30)
         message = message_font.render("You Lose!", True, text_color)
 
-        menu = Menu([main_menu_button, retry_button], [message], self.window)
+        menu = Menu([main_menu_button], [message], self.window)
         return menu.run_menu()
 
     def win(self):
@@ -95,21 +69,33 @@ class Game:
         return menu.run_menu()
 
 
-# TODO Design levels
 class Level:
-    def __init__(self, game, jason):
-        self.game = game
+    def __init__(self, jason, window):
         self.jason = jason
+        self.window = window
+        self.screen_width = window.width
+        self.screen_height = window.height
         self.level_data = self.read_json()
-        # TODO make function to read ground/platform data from JSON and create map
-        self.level_map = self.level_data["map"]
+        self.level_map = self.load_map(self.level_data["map"])
+        self.level_drag = self.level_data["drag"]
 
     def read_json(self):
         with open(self.jason, 'r') as data:
             return json.load(data)
 
-    def run_level(self, game, ball, window):
+    def load_map(self, data):
+        if not data["platform_enabled"]:
+            return Map([], self.screen_width, self.screen_height)
+
+        level_map = Map([], self.screen_width, self.screen_height, True)
+        for ground in data["platform"]:
+            level_map.platform.append(ground["texture"], ground["rows_cols"],
+                                      ground["width"], ground["width"], ground["drag"])
+        return level_map
+
+    def run_level(self, ball):
         frame = 0
+        clock = pygame.time.Clock()
         run = True
         while run:
 
@@ -117,30 +103,36 @@ class Level:
                 if event.type == pygame.QUIT:
                     run = False
 
-            self.window.surface.refresh()
+            self.window.refresh()
             key_list = pygame.key.get_pressed()
 
-            if frame in self.level_data:
-                if self.level_data[frame] == "win":
+            if str(frame) in self.level_data:
+                if self.level_data[str(frame)] == "win":
                     return "win"
-                if "bullets" in self.level_data[frame]:
-                   self.bullets.extend(self.level_data[frame]["bullets"])
+                if "bullets" in self.level_data[str(frame)]:
+                    self.level_map.bullets.extend([Bullet(*x) for x in self.level_data[str(frame)]["bullets"]])
 
-                if "blocks" in self.level[frame]:
-                    self.blocks.extend(self.level_data[frame]["blocks"])
+                if "blocks" in self.level_data[str(frame)]:
+                    self.level_map.blocks.extend([Block(*x) for x in self.level_data[str(frame)]["blocks"]])
 
-            self.ball.move(key_list)
-            self.level_map.update()
-            self.ball.draw(window.surface)
+            if self.level_map.has_platform:
+                drag = self.level_map.platform[self.level_map.on_what_ground(ball.rect())]
+            else:
+                drag = self.level_drag
 
-            if ball.is_shot:
+            ball.move(key_list, drag)
+            self.level_map.update(self.window.surface)
+            ball.draw(self.window.surface)
+
+            if ball.is_shot(self.level_map):
                 return "lose"
 
-            if ball.is_blocked:
+            if ball.is_blocked(self.level_map):
                 return "lose"
 
-            if ball.is_off_the_grid:
-                return "lose"
+            if self.level_map.has_platform:
+                if ball.is_off_the_grid(self.level_map):
+                    return "lose"
 
             AbsGameObject.update_counter()
 

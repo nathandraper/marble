@@ -1,0 +1,50 @@
+{
+  "map":
+  {
+    "platform": [],
+    "platform_enabled": 0
+  },
+
+  "drag": 3,
+
+  "5":
+  {
+    "bullets": [
+      [[0, 0], "bullet_texture.png", [2, 5], 10, 4.71],
+      [[100, 0], "bullet_texture.png", [2, 5], 10, 4.71],
+      [[200, 0], "bullet_texture.png", [2, 5], 10, 4.71],
+      [[300, 0], "bullet_texture.png", [2, 5], 10, 4.71]
+    ],
+    "blocks": [
+      [[300, 0], "skull_block.png", [2, 5], 1, 1, 30]
+    ]
+  },
+
+  "500":
+  {
+    "bullets": [
+      [[0, 0], "bullet_texture.png", [2, 5], 10, 4.71],
+      [[100, 0], "bullet_texture.png", [2, 5], 10, 4.71],
+      [[200, 0], "bullet_texture.png", [2, 5], 10, 4.71],
+      [[300, 0], "bullet_texture.png", [2, 5], 10, 4.71]
+    ],
+    "blocks": [
+      [[300, 0], "skull_block.png", [2, 5], 1, 1, 30]
+    ]
+  },
+
+  "2000":
+  {
+    "bullets": [
+      [[0, 0], "bullet_texture.png", [2, 5], 10, 4.71],
+      [[100, 0], "bullet_texture.png", [2, 5], 10, 4.71],
+      [[200, 0], "bullet_texture.png", [2, 5], 10, 4.71],
+      [[300, 0], "bullet_texture.png", [2, 5], 10, 4.71]
+    ],
+    "blocks": [
+      [[300, 0], "skull_block.png", [2, 5], 1, 1, 30]
+    ]
+  },
+
+  "3000": "win"
+}
