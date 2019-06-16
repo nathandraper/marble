@@ -28,12 +28,12 @@ class Game:
         color = (0, 255, 255)
         text_color = (255, 255, 255)
         main_menu_location = (300, 600)
+        text_location = (400, 300)
         width = 100
         height = 50
 
         main_menu_button = Button("Main Menu", color, text_color, main_menu_location, width, height, "main menu")
-        message_font = pygame.font.Font(None, 30)
-        message = message_font.render("You Lose!", True, text_color)
+        message = Text("You Lose!", text_color, text_location, 50)
 
         menu = Menu([main_menu_button], [message], self.window)
         return menu.run_menu()
@@ -42,13 +42,12 @@ class Game:
         color = (0, 255, 255)
         text_color = (255, 255, 255)
         location = (450, 600)
+        text_location = (400, 300)
         width = 100
         height = 50
 
         continue_button = Button("Continue", color, text_color, location, width, height, "")
-        message_font = pygame.font.Font(None, 30)
-        message = message_font.render("Level complete!", True, text_color)
-
+        message = Text("Level complete!", text_color, text_location, 50)
         menu = Menu([continue_button], [message], self.window)
 
         return menu.run_menu()
@@ -57,12 +56,12 @@ class Game:
         color = (0, 255, 255)
         text_color = (255, 255, 255)
         location = (450, 600)
+        text_location = (400, 300)
         width = 100
         height = 50
 
         continue_button = Button("Main Menu", color, text_color, location, width, height, "main_menu")
-        message_font = pygame.font.Font(None, 30)
-        message = message_font.render("You beat the game!", True, text_color)
+        message = Text("You beat the game!", text_color, text_location, 50)
 
         menu = Menu([continue_button], [message], self.window)
 

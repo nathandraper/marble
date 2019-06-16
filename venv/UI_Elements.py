@@ -14,17 +14,28 @@ class Menu:
         self.description.draw(window.surface)
 
     def run_menu(self):
+        self.window.surface.fill((0, 0, 0))
+
         for button in self.buttons:
-            button.draw()
+            button.draw(self.window.surface)
         for text in self.texts:
-            text.draw()
+            text.draw(self.window.surface)
+
+        pygame.display.update()
+        clock = pygame.time.Clock()
 
         run = True
         while run:
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    run = False
+
             if pygame.mouse.get_pressed()[0]:
                 for button in self.buttons:
                     if button.in_button(pygame.mouse.get_pos()):
                         return button.action
+            clock.tick(60)
 
 
 class Button:

@@ -7,7 +7,6 @@ from UI_Elements import Button, Text, Menu
 from Levels import Level, Game
 
 
-# TODO implement these functions
 def run_main_menu(window):
     color = (255, 255, 255)
     text_color = (255, 255, 255)
@@ -26,7 +25,7 @@ def run_main_menu(window):
 
     main_menu = Menu([play_button, quit_button], [message], window)
 
-    return main_menu.run_menu
+    return main_menu.run_menu()
 
 
 def create_game_window():
@@ -56,12 +55,12 @@ if __name__ == "__main__":
 
     game_window = create_game_window()
     ball = create_ball(game_window)
-    levels = levels_generator(playable_levels, game_window)
 
     while True:
-        if run_main_menu(game_window) == "quit":
+        choice = run_main_menu(game_window)
+        if choice == "quit":
             break
-        else:
-            Game(ball, levels, game_window).run_levels()
+        if choice == "play":
+            Game(ball, levels_generator(playable_levels, game_window), game_window).run_levels()
 
     pygame.quit()
