@@ -2,18 +2,22 @@ import pygame
 
 
 class Menu:
-    def __init__(self, buttons, texts, window):
-        self.buttons = buttons
-        self.texts = texts
-        self.window = window
+    def __init__(self, program):
+        # default styling
+        self.button_color = (255, 255, 255)
+        self.text_color = (255, 255, 255)
+        self.button_width = 100
+        self.button_height = 100
+        self.font_size = 30
+        self.button_space = 50
 
-    def render(self):
-        for button in buttons:
-            button.draw(window.surface)
+        # other properties
+        self.buttons = []
+        self.texts = []
+        self.program = program
+        self.window = self.program.window
 
-        self.description.draw(window.surface)
-
-    def run_menu(self):
+    def draw(self):
         self.window.surface.fill((0, 0, 0))
 
         for button in self.buttons:
@@ -22,24 +26,146 @@ class Menu:
             text.draw(self.window.surface)
 
         pygame.display.update()
+
+    def run(self):
+        self.draw()
         clock = pygame.time.Clock()
 
         run = True
+        click = False
         while run:
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    run = False
+                    return "quit"
+                if event.type == pygame.MOUSEBUTTONUP:
+                    click = True
 
-            if pygame.mouse.get_pressed()[0]:
+            if click:
                 for button in self.buttons:
                     if button.in_button(pygame.mouse.get_pos()):
-                        return button.action
+                        return button.obj
             clock.tick(60)
+
+    def center_elements(self):
+        for text in self.texts:
+            text.x_pos = (self.window.width - text.get_width()) // 2
+
+        buttons_width = sum([button.width + self.button_space for button in self.buttons]) - self.button_space
+        last_button = 0
+        for button in self.buttons:
+            button.x_pos = last_button + (self.window.width - buttons_width) // 2
+            last_button += button.width + self.button_space
+
+    def create_buttons(self):
+        # TODO implement general button creation method
+        pass
+
+    def create_texts(self):
+        return [Text(self.message, self.text_color, self.text_location, self.font_size)]
+
+
+class MainMenu(Menu):
+    def __init__(self, program):
+        # get default styling values
+        super().__init__(program)
+
+        # button parameters
+        self.play_button_location = self.quit_button_location = (0, 400)
+
+        # text parameters
+        self.message = "Bullet Marble"
+        self.text_location = (0, 200)
+
+        # create buttons and text
+        self.buttons.extend(self.create_buttons())
+        self.texts.extend(self.create_texts())
+
+        self.center_elements()
+
+    def create_buttons(self):
+        quit_button = Button("Quit", self.button_color, self.text_color, self.quit_button_location, self.button_width,
+                             self.button_height, "quit")
+        play_button = Button("Play", self.button_color, self.text_color, self.play_button_location, self.button_width,
+                             self.button_height, "level_game")
+        return [play_button, quit_button]
+
+
+class WinMenu(Menu):
+    def __init__(self, program):
+        # get default styling values
+        super().__init__(program)
+
+        # button parameters
+        self.continue_button_location = (0, 400)
+
+        # text parameters
+        self.message = "Level complete!"
+        self.text_location = (0, 200)
+
+        # create buttons and text
+        self.buttons.extend(self.create_buttons())
+        self.texts.extend(self.create_texts())
+
+        self.center_elements()
+
+    def create_buttons(self):
+        continue_button = Button("Continue", self.button_color, self.text_color, self.continue_button_location,
+                                 self.button_width, self.button_height, "continue")
+        return [continue_button]
+
+
+class LoseMenu(Menu):
+    def __init__(self, program):
+        # get default styling values
+        super().__init__(program)
+
+        # button parameters
+        self.mainmenu_button_location = self.quit_button_location = (0, 400)
+
+        # text parameters
+        self.message = "Failure!"
+        self.text_location = (0, 200)
+
+        # create buttons and text
+        self.buttons.extend(self.create_buttons())
+        self.texts.extend(self.create_texts())
+
+        self.center_elements()
+
+    def create_buttons(self):
+        quit_button = Button("Quit", self.button_color, self.text_color, self.quit_button_location, self.button_width,
+                             self.button_height, "quit")
+        mainmenu_button = Button("main_menu", self.button_color, self.text_color, self.mainmenu_button_location,
+                                 self.button_width, self.button_height, "main_menu")
+        return [mainmenu_button, quit_button]
+
+
+class VictoryMenu(Menu):
+    def __init__(self, program):
+        # get default styling values
+        super().__init__(program)
+
+        # button parameters
+        self.mainmenu_button_location = (0, 400)
+
+        # text parameters
+        self.message = "You beat the game!"
+        self.text_location = (0, 200)
+
+        # create buttons and text
+        self.buttons.extend(self.create_buttons())
+        self.texts.extend(self.create_texts())
+
+        self.center_elements()
+
+    def create_buttons(self):
+        mainmenu_button = Button("main menu", self.button_color, self.text_color, self.mainmenu_button_location,
+                                 self.button_width, self.button_height, "main_menu")
+        return [mainmenu_button]
 
 
 class Button:
-    def __init__(self, text, color, text_color, location, width, height, action):
+    def __init__(self, text, color, text_color, location, width, height, obj):
         self.text = text
         self.color = color
         self.text_color = text_color
@@ -49,7 +175,7 @@ class Button:
         self.height = height
         self.font_size = 20
         self.button_thickness = 5
-        self.action = action
+        self.obj = obj
 
         self.font = pygame.font.Font(None, self.font_size)
 
@@ -79,3 +205,6 @@ class Text:
     def draw(self, surface):
         message = self.font.render(self.text, True, self.color)
         surface.blit(message, (self.x_pos, self.y_pos))
+
+    def get_width(self):
+        return self.font.size(self.text)[0]

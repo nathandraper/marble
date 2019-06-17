@@ -1,18 +1,18 @@
 from Frames import Map, Ground
-from Objects import Block, Bullet, AbsGameObject, Ball
-from Sprites import SpriteSheet
-from UI_Elements import Button, Text, Menu
+from Objects import Block, Bullet, AbsGameObject
+from UI_Elements import LoseMenu, WinMenu, VictoryMenu
 import pygame
 import json
 
 
 class Game:
-    def __init__(self, ball, levels, window):
-        self.ball = ball
-        self.levels = levels
-        self.window = window
+    def __init__(self, program):
+        self.program = program
+        self.ball = program.ball
+        self.levels = program.levels
+        self.window = program.window
 
-    def run_levels(self):
+    def run(self):
         for level in self.levels:
             result = level.run_level(self.ball)
 
@@ -22,50 +22,20 @@ class Game:
             if result == "lose":
                 return self.lose()
 
+            if result == "quit":
+                return "quit"
+
         return self.victory()
 
     def lose(self):
-        color = (0, 255, 255)
-        text_color = (255, 255, 255)
-        main_menu_location = (300, 600)
-        text_location = (400, 300)
-        width = 100
-        height = 50
-
-        main_menu_button = Button("Main Menu", color, text_color, main_menu_location, width, height, "main menu")
-        message = Text("You Lose!", text_color, text_location, 50)
-
-        menu = Menu([main_menu_button], [message], self.window)
-        return menu.run_menu()
+        return LoseMenu(self.program).run()
 
     def win(self):
-        color = (0, 255, 255)
-        text_color = (255, 255, 255)
-        location = (450, 600)
-        text_location = (400, 300)
-        width = 100
-        height = 50
-
-        continue_button = Button("Continue", color, text_color, location, width, height, "")
-        message = Text("Level complete!", text_color, text_location, 50)
-        menu = Menu([continue_button], [message], self.window)
-
-        return menu.run_menu()
+        WinMenu(self.program).run()
+        return
 
     def victory(self):
-        color = (0, 255, 255)
-        text_color = (255, 255, 255)
-        location = (450, 600)
-        text_location = (400, 300)
-        width = 100
-        height = 50
-
-        continue_button = Button("Main Menu", color, text_color, location, width, height, "main_menu")
-        message = Text("You beat the game!", text_color, text_location, 50)
-
-        menu = Menu([continue_button], [message], self.window)
-
-        return menu.run_menu()
+        return VictoryMenu(self.program).run()
 
 
 class Level:
@@ -100,7 +70,7 @@ class Level:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    run = False
+                    return "quit"
 
             self.window.refresh()
             key_list = pygame.key.get_pressed()
