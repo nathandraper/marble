@@ -150,25 +150,6 @@ class Block(AbsGameObject):
         self.rect = self.set_rect()
 
 
-class Boost(AbsGameObject):
-    # TODO finish implementation of boost
-    def __init__(self, location, orientation, acceleration = 50):
-        self.orientation = orientation
-        icon = pygame.transform.scale(pygame.image.load("boost_" + str(orientation) + ".png"), (30, 30))
-        super().__init__(location[0], location[1], icon)
-
-    @property
-    def orientation(self):
-        return self._orientation
-
-    @orientation.setter
-    def orientation(self, orientation):
-        if orientation not in ["left", "right", "up", "down"]:
-            raise OrientationError(orientation)
-        else:
-            self._orientation = orientation
-
-
 class Bullet(AbsGameObject):
     def __init__(self, location, texture, rows_cols, velocity, angle):
         super().__init__(texture, rows_cols[0], rows_cols[1], location[0], location[1])
@@ -186,3 +167,24 @@ class Bullet(AbsGameObject):
         self.x_pos += self.x_velocity
         self.y_pos += self.y_velocity
         self.rect = self.set_rect()
+
+# Boost object - not currently used
+"""
+class Boost(AbsGameObject):
+    # TODO finish implementation of boost
+    def __init__(self, location, orientation, acceleration = 50):
+        self.orientation = orientation
+        icon = pygame.transform.scale(pygame.image.load("boost_" + str(orientation) + ".png"), (30, 30))
+        super().__init__(location[0], location[1], icon)
+
+    @property
+    def orientation(self):
+        return self._orientation
+
+    @orientation.setter
+    def orientation(self, orientation):
+        if orientation not in ["left", "right", "up", "down"]:
+            raise OrientationError(orientation)
+        else:
+            self._orientation = orientation
+"""

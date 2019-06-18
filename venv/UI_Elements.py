@@ -135,7 +135,7 @@ class LoseMenu(Menu):
     def create_buttons(self):
         quit_button = Button("Quit", self.button_color, self.text_color, self.quit_button_location, self.button_width,
                              self.button_height, "quit")
-        mainmenu_button = Button("main_menu", self.button_color, self.text_color, self.mainmenu_button_location,
+        mainmenu_button = Button("main menu", self.button_color, self.text_color, self.mainmenu_button_location,
                                  self.button_width, self.button_height, "main_menu")
         return [mainmenu_button, quit_button]
 

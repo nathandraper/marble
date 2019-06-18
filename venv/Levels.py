@@ -17,7 +17,8 @@ class Game:
             result = level.run_level(self.ball)
 
             if result == "win":
-                self.win()
+                if self.win() == "quit":
+                    return "quit"
 
             if result == "lose":
                 return self.lose()
@@ -31,8 +32,7 @@ class Game:
         return LoseMenu(self.program).run()
 
     def win(self):
-        WinMenu(self.program).run()
-        return
+        return WinMenu(self.program).run()
 
     def victory(self):
         return VictoryMenu(self.program).run()

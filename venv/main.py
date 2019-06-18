@@ -4,61 +4,55 @@ from Frames import Window
 from Objects import Ball
 from UI_Elements import MainMenu
 from Levels import Level, Game
-
+# TODO countdown timer for level start
+# TODO design serious levels
+# TODO more level design utilities
+# TODO endless mode
+# TODO music
+# TODO improve sprites
 
 class Program:
     def __init__(self):
         pygame.init()
-        self.playable_levels = 1
+        self.playable_levels = 2
         self.window = self.create_game_window()
         self.ball = self.create_ball(self.window)
         self.levels = None
 
-        self.currently_running = MainMenu(self)
+        self.currently_running = "main_menu"
 
     def run(self):
         pygame.init()
         while True:
             if self.currently_running == "quit":
                 break
-
-            run_this = self.currently_running.run()
-            self.set_currently_running(run_this)
+            self.currently_running = self.currently_running.run()
 
         pygame.quit()
 
-    def set_currently_running(self, obj_name):
+    @property
+    def currently_running(self):
+        return self._currently_running
+
+    @currently_running.setter
+    def currently_running(self, obj_name):
         if obj_name == "quit":
-            self.currently_running = "quit"
+            self._currently_running = "quit"
             return
 
         if obj_name == "level_game":
+            # reset ball position
+            self.ball.x_pos = (self.window.width // 2) - self.ball.radius
+            self.ball.y_pos = self.window.height - 100
+
+            # self.levels needs to be reset each time a game is run because it's a generator object
             self.levels = self.levels_generator(self.playable_levels, self.window)
-            self.currently_running = Game(self)
+            self._currently_running = Game(self)
             return
 
         if obj_name == "main_menu":
-            self.currently_running = MainMenu(self)
+            self._currently_running = MainMenu(self)
             return
-
-    @staticmethod
-    def create_main_menu(window):
-        color = (255, 255, 255)
-        text_color = (255, 255, 255)
-        quit_button_location = (600, 500)
-        play_button_location = (300, 500)
-        width = 100
-        height = 100
-
-        quit_button = Button("Quit", color, text_color, quit_button_location, width, height, "quit")
-        play_button = Button("Play", color, text_color, play_button_location, width, height, "play")
-
-        text_location = (150, 200)
-        font_size = 30
-
-        message = Text("Bullet Marble", text_color, text_location, font_size)
-
-        return Menu([play_button, quit_button], [message], window)
 
     @staticmethod
     def create_game_window():
