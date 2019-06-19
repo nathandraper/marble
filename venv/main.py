@@ -4,12 +4,16 @@ from Frames import Window
 from Objects import Ball
 from UI_Elements import MainMenu
 from Levels import Level, Game
-# TODO countdown timer for level start
-# TODO design serious levels
-# TODO more level design utilities
-# TODO endless mode
-# TODO music
-# TODO improve sprites
+# TODO: countdown timer for level start
+# TODO: design serious levels
+# TODO: more level design utilities
+# TODO: endless mode
+# TODO: music
+# TODO: sound fx
+# TODO: improve sprites
+# TODO: settings menu
+# TODO: rhythm elements
+
 
 class Program:
     def __init__(self):

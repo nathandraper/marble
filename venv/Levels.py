@@ -1,6 +1,7 @@
 from Frames import Map, Ground
 from Objects import Block, Bullet, AbsGameObject
-from UI_Elements import LoseMenu, WinMenu, VictoryMenu
+from UI_Elements import LoseMenu, WinMenu, VictoryMenu, Text
+from Level_Design_Utilities import time_to_frames
 import pygame
 import json
 
@@ -14,7 +15,7 @@ class Game:
 
     def run(self):
         for level in self.levels:
-            result = level.run_level(self.ball)
+            result = level.run_level(self.program)
 
             if result == "win":
                 if self.win() == "quit":
@@ -62,7 +63,10 @@ class Level:
                                       ground["width"], ground["width"], ground["drag"])
         return level_map
 
-    def run_level(self, ball):
+    def run_level(self, program):
+        if Countdown(program, self.level_drag).run() == "quit":
+            return "quit"
+        ball = program.ball
         frame = 0
         clock = pygame.time.Clock()
         run = True
@@ -109,4 +113,70 @@ class Level:
             frame += 1
             clock.tick(30)
 
+
+class Countdown:
+    #     def __init__(self, text, color, location, font_size):
+    #         self.text = text
+    #         self.color = color
+    #         self.x_pos = location[0]
+    #         self.y_pos = location[1]
+    #         self.font_size = font_size
+    #         self.font = pygame.font.Font(None, self.font_size)
+    def __init__(self, program, drag, delay="0:01", count=3, text_color=(255, 255, 255), y_pos=200, font_size=200):
+        self.program = program
+        self.window = program.window
+        self.ball = program.ball
+        self.count = count
+        self.delay = time_to_frames(delay)
+        self.text_color = text_color
+        self.y_pos = y_pos
+        self.font_size = font_size
+        self.draw_list = self.create_draw_list()
+        self.center_draw_list()
+        self.drag = drag
+
+    def run(self):
+        ready_go = 2  # extra messages in addition to the countdown numbers
+        frame_counter = 0
+        draw_index = 0
+        drawing = self.draw_list[draw_index]
+        clock = pygame.time.Clock()
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return "quit"
+
+            self.window.refresh()
+            drawing.draw(self.window.surface)
+            self.ball.draw(self.window.surface)
+
+            # every self.delay frames, the object to be drawn is updated.
+            frame_counter += 1
+            if frame_counter >= self.delay:
+                draw_index += 1
+                if draw_index >= self.count + ready_go:
+                    return
+                frame_counter = 0
+                drawing = self.draw_list[draw_index]
+
+            # Let player move ball while waiting
+            key_list = pygame.key.get_pressed()
+            self.ball.move(key_list, self.drag)
+
+            # Just in case there will be animations in the countdown phase
+            AbsGameObject.update_counter()
+
+            pygame.display.update()
+            clock.tick(30)
+
+    def create_draw_list(self):
+        draw_list = [Text("Ready...", self.text_color, (0, self.y_pos), self.font_size)]
+        for num in range(self.count, 0, -1):
+            draw_list.append(Text(str(num), self.text_color, (0, self.y_pos), self.font_size))
+        draw_list.append(Text("GO!", self.text_color, (0, self.y_pos), self.font_size))
+        return draw_list
+
+    def center_draw_list(self):
+        for text in self.draw_list:
+            text.x_pos = (self.window.width - text.get_width()) // 2
 

@@ -29,7 +29,7 @@ def load_json_to_special_dict(jason):
     return result
 
 
-def time_to_fps(string):
+def time_to_frames(string):
     mins, secs = string.split(":")
     return (60 * int(mins) + int(secs)) * FPS
 
@@ -41,7 +41,7 @@ def merge_wave(level_dic, wave_dic):
 
 
 def set_win_time(level_dic, time):
-    frame = time_to_fps(time)
+    frame = time_to_frames(time)
     level_dic[frame] = "win"
 
 
@@ -55,7 +55,7 @@ def set_map(level_dic):
 
 def shoot_bullet(time, location, angle, velocity=DEFAULT_VELOCITY,
                  rows_cols=DEFAULT_ROWS_COLS, texture=DEFAULT_BULLET_SPRITE):
-    time = time_to_fps(time)
+    time = time_to_frames(time)
     wave = special_dict()
     bullet = [location, texture, rows_cols, velocity, angle]
     wave[time]["bullets"].append(bullet)
@@ -73,7 +73,7 @@ def rain_bullets(time, density, angle=(3*math.pi)/2, velocity=DEFAULT_VELOCITY, 
     # TODO implement origin to spawn bullets from different sides of the screen
     switch = False
     wave = special_dict()
-    time = time_to_fps(time)
+    time = time_to_frames(time)
     for pulse in range(pulses):
         cascade_interval = interval/density if cascading else 0
         for x in range(density):
@@ -90,7 +90,7 @@ def death_spiral(time, density, velocity=DEFAULT_VELOCITY, pulses=1, interval=FP
                  texture=DEFAULT_BULLET_SPRITE, rows_cols=DEFAULT_ROWS_COLS):
     # TODO fix this mess
     wave = special_dict()
-    time = time_to_fps(time)
+    time = time_to_frames(time)
 
     perimeter = SCREEN_HEIGHT*2 + SCREEN_WIDTH*2
     space = perimeter/density
