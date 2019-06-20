@@ -1,6 +1,7 @@
 from collections import defaultdict
 import json
 import math
+import random
 # all methods assume the use of a defaultdict when reading the level data
 
 # Constructor signatures for objects:
@@ -121,6 +122,14 @@ def death_spiral(time, density, velocity=DEFAULT_VELOCITY, pulses=1, interval=FP
                 y_pos -= space
 
         return wave
+
+
+def radiate(time, density, arc, velocity=DEFAULT_VELOCITY, pulses=1, interval=FPS, origin=(SCREEN_WIDTH/2, 0),
+            texture=DEFAULT_BULLET_SPRITE, rows_cols=DEFAULT_ROWS_COLS):
+
+    cut = arc/density
+    #angle_to_center
+    #if x
 
 
 if __name__ == "__main__":
