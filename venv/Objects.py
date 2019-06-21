@@ -21,7 +21,7 @@ class AbsGameObject:
                      self.sprite_sheet.cell_rects[AbsGameObject.flash_counter])
 
     def is_offscreen(self, screen_width, screen_heignt):
-        return (self.x_pos > screen_width) or (self.x_pos <= 0) or (self.y_pos > screen_heignt) or (self.y_pos <= 0)
+        return (self.x_pos > screen_width) or (self.x_pos < 0) or (self.y_pos > screen_heignt) or (self.y_pos < 0)
 
     def set_rect(self):
         return pygame.Rect(self.x_pos, self.y_pos, self.sprite_sheet.cell_width, self.sprite_sheet.cell_height)

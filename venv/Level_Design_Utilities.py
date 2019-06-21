@@ -76,7 +76,7 @@ def rain_bullets(time, density, angle=(3*math.pi)/2, velocity=DEFAULT_VELOCITY, 
     wave = special_dict()
     time = time_to_frames(time)
     for pulse in range(pulses):
-        cascade_interval = interval/density if cascading else 0
+        cascade_interval = math.floor(interval/density) if cascading else 0
         for x in range(density):
             frame = time + (pulse*interval) + (cascade_interval*x)
             x_pos = (SCREEN_WIDTH/density)*x + (SCREEN_WIDTH/(density*2)) + pulse_shift*switch
@@ -99,10 +99,10 @@ def death_spiral(time, density, velocity=DEFAULT_VELOCITY, pulses=1, interval=FP
     spaces = 0
 
     for pulse in range(pulses):
-        cascade_interval = interval/density if cascading else 0
+        cascade_interval = math.floor(interval/density) if cascading else 0
         for x in range(density):
             try:
-                angle = math.atan2((y_pos - SCREEN_HEIGHT / 2), (x_pos - SCREEN_WIDTH / 2))
+                angle = math.atan2((y_pos - SCREEN_HEIGHT / 2), -(x_pos - SCREEN_WIDTH / 2))
             except ZeroDivisionError:
                 angle = math.copysign(math.pi/2, -y_pos + SCREEN_HEIGHT / 2)
 
@@ -123,22 +123,43 @@ def death_spiral(time, density, velocity=DEFAULT_VELOCITY, pulses=1, interval=FP
 
         return wave
 
-
-def radiate(time, density, arc, velocity=DEFAULT_VELOCITY, pulses=1, interval=FPS, origin=(SCREEN_WIDTH/2, 0),
-            texture=DEFAULT_BULLET_SPRITE, rows_cols=DEFAULT_ROWS_COLS):
-
+# Bullet: def __init__(self, location, texture, rows_cols, velocity, angle):
+def radiate(time, density, arc, velocity=DEFAULT_VELOCITY, pulses=1, interval=FPS, cascading=False,
+            origin=(SCREEN_WIDTH/2, 0), texture=DEFAULT_BULLET_SPRITE, rows_cols=DEFAULT_ROWS_COLS):
+    wave = special_dict()
+    start_frame = time_to_frames(time)
     cut = arc/density
-    #angle_to_center
-    #if x
+    x = origin[0] - SCREEN_WIDTH/2
+    y = -(origin[1] - SCREEN_HEIGHT/2)
+
+    try:
+        angle_to_center = math.atan2(-y, -x)
+    except ZeroDivisionError:
+        angle_to_center = math.copysign(math.pi / 2, y)
+
+    angles = [angle_to_center - (arc/2) + (cut/2) + (cut*bullet)  for bullet in range(density)]
+
+    for pulse in range(pulses):
+        cascade_interval = math.floor(interval/density) if cascading else 0
+        for x in range(density):
+            frame = start_frame + cascade_interval*x + interval*pulse
+            bullet = [origin, texture, rows_cols, velocity, angles[x]]
+            wave[frame]["bullets"].append(bullet)
+    return wave
+
+
 
 
 if __name__ == "__main__":
-    a = rain_bullets("0:03", 7, pulses=3, interval=FPS*3)
-    b = death_spiral("0:15", 15, pulses=2, interval=FPS*3)
-    merge_wave(a, b)
+    #a = rain_bullets("0:03", 7, pulses=3, interval=FPS*3)
+    #b = death_spiral("0:12", 15, pulses=2, interval=FPS*3)
+    a = radiate("0:5", 4, math.pi/2, pulses=3, origin=(100,100), cascading=True)
+    c = radiate("0:10", 7, math.pi/2, pulses=3)
+    merge_wave(a, c)
+    #merge_wave(a, c)
     set_level_drag(a, 3)
     set_map(a)
-    set_win_time(a, "0:23")
+    set_win_time(a, "0:18")
 
     with open("level_2", "w") as f:
         json.dump(a, f, indent=2)
