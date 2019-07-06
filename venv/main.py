@@ -2,9 +2,8 @@ import pygame
 import math
 from Frames import Window
 from Objects import Ball
-from UI_Elements import MainMenu
+from UI_Elements import MainMenu, TestMenu
 from Levels import Level, Game
-# TODO: countdown timer for level start
 # TODO: design serious levels
 # TODO: more level design utilities
 # TODO: endless mode
@@ -13,6 +12,7 @@ from Levels import Level, Game
 # TODO: improve sprites
 # TODO: settings menu
 # TODO: rhythm elements
+# TODO: change currently running to a stack
 
 
 class Program:
@@ -57,6 +57,16 @@ class Program:
         if obj_name == "main_menu":
             self._currently_running = MainMenu(self)
             return
+
+        if obj_name == "test_menu":
+            self._currently_running = TestMenu(self)
+            return
+
+        if obj_name == "test_1":
+            # reset ball position
+            self.ball.x_pos = (self.window.width // 2) - self.ball.radius
+            self.ball.y_pos = self.window.height - 100
+
 
     @staticmethod
     def create_game_window():

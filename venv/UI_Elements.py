@@ -34,9 +34,16 @@ class Menu:
         run = True
         click = False
         while run:
+            keys = pygame.key.get_pressed()
+
+
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return "quit"
+                if event.type == pygame.KEYUP:
+                    if keys[pygame.K_t] and keys[pygame.K_LCTRL]:
+                        return "test_menu"
                 if event.type == pygame.MOUSEBUTTONUP:
                     click = True
 
@@ -63,6 +70,31 @@ class Menu:
     def create_texts(self):
         return [Text(self.message, self.text_color, self.text_location, self.font_size)]
 
+class TestMenu(Menu):
+    def __init__(self, program):
+        # get default styling values
+        super().__init__(program)
+
+        # text parameters
+        self.message = "Testing"
+        self.text_location = (0,200)
+
+        # button parameters
+        self.test_1_location = self.main_menu_location = (0,400)
+
+        # create buttons and text
+        self.buttons.extend(self.create_buttons())
+        self.texts.extend(self.create_texts())
+
+        self.center_elements()
+
+    def create_buttons(self):
+        test_button1 = Button("Test level 1", self.button_color, self.text_color, self.test_1_location,
+                              self.button_width, self.button_height, "test_1")
+        mainmenu_button = Button("Main Menu", self.button_color, self.text_color, self.main_menu_location,
+                                 self.button_width, self.button_height, "main_menu")
+
+        return [test_button1, mainmenu_button]
 
 class MainMenu(Menu):
     def __init__(self, program):

@@ -35,10 +35,11 @@ def time_to_frames(string):
     return (60 * int(mins) + int(secs)) * FPS
 
 
-def merge_wave(level_dic, wave_dic):
-    for frame, obj_dic in wave_dic.items():
-        for obj_name, obj_list in obj_dic.items():
-            level_dic[frame][obj_name].extend(obj_list)
+def merge_wave(level_dic, *args, **kwargs):
+    for dic in args:
+        for frame, obj_dic in dic.items():
+            for obj_name, obj_list in obj_dic.items():
+                level_dic[frame][obj_name].extend(obj_list)
 
 
 def set_win_time(level_dic, time):
@@ -155,11 +156,12 @@ if __name__ == "__main__":
     #b = death_spiral("0:12", 15, pulses=2, interval=FPS*3)
     a = radiate("0:5", 4, math.pi/2, pulses=3, origin=(100,100), cascading=True)
     c = radiate("0:10", 7, math.pi/2, pulses=3)
-    merge_wave(a, c)
-    #merge_wave(a, c)
+    b = death_spiral("0:15", 15, pulses=2, interval=FPS*2)
+    d = rain_bullets("0:20", 7, pulses=3, interval=FPS*3)
+    merge_wave(a, b, c, d)
     set_level_drag(a, 3)
     set_map(a)
-    set_win_time(a, "0:18")
+    set_win_time(a, "0:25")
 
     with open("level_2", "w") as f:
         json.dump(a, f, indent=2)
