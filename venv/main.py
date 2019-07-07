@@ -2,8 +2,7 @@ import pygame
 import math
 from Frames import Window
 from Objects import Ball
-from UI_Elements import MainMenu, TestMenu
-from Levels import Level, Game
+from Runnables import MainMenu, TestMenu, Level, VictoryMenu
 # TODO: design serious levels
 # TODO: more level design utilities
 # TODO: endless mode
@@ -21,52 +20,33 @@ class Program:
         self.playable_levels = 2
         self.window = self.create_game_window()
         self.ball = self.create_ball(self.window)
-        self.levels = None
+        self.run_stack = []
 
-        self.currently_running = "main_menu"
+        self.run_stack.append(MainMenu(self))
 
     def run(self):
+        """
+        Main run loop for program
+
+        The program runs by popping object off the run stack and running them. The program will run until the run
+        stack is empty. Objects are designed to push other objects onto the run stack. Objects include levels
+        and menus.
+        """
         pygame.init()
         while True:
-            if self.currently_running == "quit":
+            try:
+                running = self.run_stack.pop()
+
+            except IndexError:
                 break
-            self.currently_running = self.currently_running.run()
+
+            try:
+                running.run()
+
+            except AttributeError:
+                break
 
         pygame.quit()
-
-    @property
-    def currently_running(self):
-        return self._currently_running
-
-    @currently_running.setter
-    def currently_running(self, obj_name):
-        if obj_name == "quit":
-            self._currently_running = "quit"
-            return
-
-        if obj_name == "level_game":
-            # reset ball position
-            self.ball.x_pos = (self.window.width // 2) - self.ball.radius
-            self.ball.y_pos = self.window.height - 100
-
-            # self.levels needs to be reset each time a game is run because it's a generator object
-            self.levels = self.levels_generator(self.playable_levels, self.window)
-            self._currently_running = Game(self)
-            return
-
-        if obj_name == "main_menu":
-            self._currently_running = MainMenu(self)
-            return
-
-        if obj_name == "test_menu":
-            self._currently_running = TestMenu(self)
-            return
-
-        if obj_name == "test_1":
-            # reset ball position
-            self.ball.x_pos = (self.window.width // 2) - self.ball.radius
-            self.ball.y_pos = self.window.height - 100
-
 
     @staticmethod
     def create_game_window():
@@ -83,11 +63,6 @@ class Program:
         ball_color = (10, 90, 109)
         acceleration = 5
         return Ball(game_window.width, game_window.height, ball_color, (x, y), radius, acceleration)
-
-    @staticmethod
-    def levels_generator(num, window):
-        for x in range(num):
-            yield Level("level_" + str(x + 1), window)
 
 
 if __name__ == "__main__":

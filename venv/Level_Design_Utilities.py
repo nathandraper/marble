@@ -35,7 +35,7 @@ def time_to_frames(string):
     return (60 * int(mins) + int(secs)) * FPS
 
 
-def merge_wave(level_dic, *args, **kwargs):
+def merge_wave(level_dic, *args):
     for dic in args:
         for frame, obj_dic in dic.items():
             for obj_name, obj_list in obj_dic.items():
